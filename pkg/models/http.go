@@ -42,7 +42,7 @@ type HTTPOpenCurrencyAccountRequest struct {
 
 // HTTPDepositCurrencyRequest is a request to deposit currency in to a specified Fiat currency.
 type HTTPDepositCurrencyRequest struct {
-	Amount   decimal.Decimal `json:"amount"   validate:"required,gt=0" yaml:"amount"`
+	Amount   decimal.Decimal `json:"amount"   validate:"required" yaml:"amount"`
 	Currency string          `json:"currency" validate:"required"      yaml:"currency"`
 }
 
@@ -50,7 +50,7 @@ type HTTPDepositCurrencyRequest struct {
 type HTTPExchangeOfferRequest struct {
 	SourceCurrency      string          `json:"sourceCurrency"      validate:"required"      yaml:"sourceCurrency"`
 	DestinationCurrency string          `json:"destinationCurrency" validate:"required"      yaml:"destinationCurrency"`
-	SourceAmount        decimal.Decimal `json:"sourceAmount"        validate:"required,gt=0" yaml:"sourceAmount"`
+	SourceAmount        decimal.Decimal `json:"sourceAmount"        validate:"required" yaml:"sourceAmount"`
 }
 
 // HTTPCryptoOfferRequest is a request to convert a source to destination currency in the source currency amount.
