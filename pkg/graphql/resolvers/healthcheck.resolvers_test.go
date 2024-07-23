@@ -92,7 +92,9 @@ func TestQueryResolver_Healthcheck(t *testing.T) {
 
 			req, _ := http.NewRequestWithContext(context.TODO(), http.MethodPost, test.path, bytes.NewBufferString(query))
 			req.Header.Set("Content-Type", "application/json")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses

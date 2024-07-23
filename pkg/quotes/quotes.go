@@ -87,7 +87,7 @@ func newQuotesImpl(fs *afero.Fs, logger *logger.Logger) (q *quotesImpl, err erro
 // configFiatClient will setup the global configurations for the Fiat client.
 func configFiatClient(conf *config) (*req.Client, error) {
 	if conf == nil {
-		return nil, fmt.Errorf("configurations not loaded")
+		return nil, errors.New("configurations not loaded")
 	}
 
 	return req.C().
@@ -100,7 +100,7 @@ func configFiatClient(conf *config) (*req.Client, error) {
 // configCryptoClient will setup the global configurations for the Crypto client.
 func configCryptoClient(conf *config) (*req.Client, error) {
 	if conf == nil {
-		return nil, fmt.Errorf("configurations not loaded")
+		return nil, errors.New("configurations not loaded")
 	}
 
 	return req.C().
@@ -188,7 +188,7 @@ func (q *quotesImpl) cryptoQuote(source, destination string) (models.CryptoQuote
 
 	if !resp.IsSuccessState() {
 		// Invalid cryptocurrency codes.
-		if resp.StatusCode == 550 { //nolint:gomnd
+		if resp.StatusCode == 550 { //nolint:mnd,gomnd
 			return result, NewError("invalid Crypto currency code").SetStatus(http.StatusBadRequest)
 		}
 

@@ -151,6 +151,7 @@ func HTTPExchangeCrypto(auth auth.Auth, cache redis.Redis, db postgres.Postgres,
 	// Extract Offer ID from request.
 	{
 		var rawOfferID []byte
+
 		if rawOfferID, err = auth.DecryptFromString(offerID); err != nil {
 			logger.Warn("failed to decrypt Offer ID for Crypto transfer request", zap.Error(err))
 
@@ -167,6 +168,7 @@ func HTTPExchangeCrypto(auth auth.Auth, cache redis.Redis, db postgres.Postgres,
 			status int
 			msg    string
 		)
+
 		if offer, status, msg, err = HTTPGetCachedOffer(cache, logger, offerID); err != nil {
 			return receipt, status, msg, fmt.Errorf("%w", err)
 		}
@@ -236,7 +238,7 @@ func cryptoBalancePaginatedRequest(auth auth.Auth, tickerStr, limitStr string) (
 
 	if len(tickerStr) > 0 {
 		if decrypted, err = auth.DecryptFromString(tickerStr); err != nil {
-			return ticker, -1, fmt.Errorf("failed to decrypt next ticker")
+			return ticker, -1, errors.New("failed to decrypt next ticker")
 		}
 	}
 
@@ -245,7 +247,7 @@ func cryptoBalancePaginatedRequest(auth auth.Auth, tickerStr, limitStr string) (
 	// Convert record limit to int and set base bound for bad input.
 	if len(limitStr) > 0 {
 		if limit, err = strconv.ParseInt(limitStr, 10, 32); err != nil {
-			return ticker, -1, fmt.Errorf("failed to parse record limit")
+			return ticker, -1, errors.New("failed to parse record limit")
 		}
 	}
 

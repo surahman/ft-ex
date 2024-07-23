@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -70,7 +70,7 @@ func TestError_Is(t *testing.T) {
 			boolExpectation: require.False,
 		}, {
 			name:            "base different",
-			inputErr:        fmt.Errorf("different error"),
+			inputErr:        errors.New("different error"),
 			baseErr:         nil,
 			boolExpectation: require.False,
 		}, {

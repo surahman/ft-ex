@@ -76,21 +76,23 @@ func TestRedisConfigs_Load(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
+
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
 			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+constants.RedisFileName(),
-				[]byte(testCase.input), 0644), "Failed to write in memory file")
+				[]byte(test.input), 0644), "Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := actual.Load(fs)
-			testCase.expectErr(t, err)
+			test.expectErr(t, err)
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectErrCnt,
+				require.Lenf(t, validationError.Errors, test.expectErrCnt,
 					"expected errors count is incorrect: %v", err)
 
 				return
@@ -99,6 +101,7 @@ func TestRedisConfigs_Load(t *testing.T) {
 			// Test configuring of environment variable.
 			username := xid.New().String()
 			password := xid.New().String()
+
 			t.Setenv(envAuthKey+"USERNAME", username)
 			t.Setenv(envAuthKey+"PASSWORD", password)
 
@@ -108,6 +111,7 @@ func TestRedisConfigs_Load(t *testing.T) {
 			poolSize := 164
 			minIdleConns := 9
 			maxIdleConns := 101
+
 			t.Setenv(envConnKey+"ADDR", addr)
 			t.Setenv(envConnKey+"MAXCONNATTEMPTS", strconv.Itoa(maxConnAttempts))
 			t.Setenv(envConnKey+"MAXRETRIES", strconv.Itoa(maxRetries))

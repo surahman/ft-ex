@@ -103,6 +103,7 @@ func TestModels_NullCurrencyScan(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			var ns NullCurrency
+
 			testCase.errExpected(t, ns.Scan(testCase.nullCurr), "expected error condition failed.")
 			testCase.boolExpected(t, ns.Valid, "expected validity condition failed.")
 		})
@@ -144,9 +145,11 @@ func TestModels_NullCurrencyValue(t *testing.T) {
 			driver, err := testCase.nullCurr.Value()
 			testCase.errExpected(t, err, "expected error condition failed.")
 			testCase.nilExpected(t, driver, "nil driver value expectation failed.")
+
 			if driver == nil {
 				return
 			}
+
 			curr, ok := driver.(string)
 			require.True(t, ok, "driver cast to string failed.")
 			require.Equal(t, testCase.driverValue, curr, "incorrect driver value.")

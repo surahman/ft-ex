@@ -74,7 +74,7 @@ func (p *postgresImpl) FiatExternalTransfer(parentCtx context.Context, xferDetai
 
 	// Set rollback in case of failure.
 	defer func() {
-		if errRollback := tx.Rollback(context.TODO()); errRollback != nil {
+		if errRollback := tx.Rollback(parentCtx); errRollback != nil {
 			// If the connection is closed, the transaction was committed. Ignore the error from rollback in this case.
 			if !errors.Is(errRollback, pgx.ErrTxClosed) {
 				p.logger.Error("failed to rollback external Fiat account transaction", zap.Error(errRollback))
@@ -182,7 +182,7 @@ func fiatTransactionRowLockAndBalanceCheck(
 	dst *FiatTransactionDetails) error {
 	// Check for negative values.
 	if src.Amount.IsNegative() || dst.Amount.IsNegative() {
-		return fmt.Errorf("amounts contains negative value")
+		return errors.New("amounts contains negative value")
 	}
 
 	// Order locks.
@@ -245,7 +245,7 @@ func (p *postgresImpl) FiatInternalTransfer(
 
 	// Set rollback in case of failure.
 	defer func() {
-		if errRollback := tx.Rollback(context.TODO()); errRollback != nil {
+		if errRollback := tx.Rollback(parentCtx); errRollback != nil {
 			// If the connection is closed, the transaction was committed. Ignore the error from rollback in this case.
 			if !errors.Is(errRollback, pgx.ErrTxClosed) {
 				p.logger.Error("failed to rollback internal Fiat account transaction", zap.Error(errRollback))

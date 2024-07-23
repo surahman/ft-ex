@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -36,7 +35,7 @@ func TestCrypto_CryptoCreateAccount(t *testing.T) {
 	for key, testCase := range getTestCryptoAccounts(clientID1, clientID2) {
 		parameters := testCase
 
-		t.Run(fmt.Sprintf("Inserting %s", key), func(t *testing.T) {
+		t.Run("Inserting "+key, func(t *testing.T) {
 			for _, param := range parameters {
 				accInfo := param
 				rowCount, err := connection.Query.cryptoCreateAccount(ctx, &accInfo)
@@ -595,7 +594,7 @@ func TestCrypto_CryptoGetAllAccounts(t *testing.T) {
 	defer cancel()
 
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving "+testCase.name, func(t *testing.T) {
 			rows, err := connection.Query.cryptoGetAllAccounts(ctx, &cryptoGetAllAccountsParams{
 				ClientID: testCase.clientID,
 				Ticker:   testCase.ticker,
@@ -777,7 +776,7 @@ func TestCrypto_CryptoGetAllJournalTransactionPaginated(t *testing.T) {
 
 	for _, testCase := range testCases {
 		parameters := testCase.parameters
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving "+testCase.name, func(t *testing.T) {
 			rows, err := connection.Query.cryptoGetAllJournalTransactionsPaginated(ctx, &parameters)
 			require.NoError(t, err, "error expectation failed.")
 			require.Len(t, rows, testCase.expectedCont, "expected row count mismatch.")

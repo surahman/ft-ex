@@ -1,6 +1,7 @@
 package quotes
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -113,7 +114,7 @@ func setup() error {
 			msg := "failed to load  Fiat currency API Key from GitHub Actions Secrets"
 			zapLogger.Error(msg)
 
-			return fmt.Errorf(msg)
+			return errors.New(msg)
 		}
 
 		// Remove Cryptocurrency API Key from environment variables.
@@ -121,7 +122,7 @@ func setup() error {
 			msg := "failed to load Cryptocurrency API Key from GitHub Actions Secrets"
 			zapLogger.Error(msg)
 
-			return fmt.Errorf(msg)
+			return errors.New(msg)
 		}
 	} else {
 		zapLogger.Info("Tests are running on local development environment.")
@@ -132,7 +133,7 @@ func setup() error {
 			msg := "failed to read credentials for development environment"
 			zapLogger.Error(msg)
 
-			return fmt.Errorf(msg)
+			return errors.New(msg)
 		}
 
 		testConfigs.FiatCurrency.APIKey = creds.Fiat

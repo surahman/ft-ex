@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -572,7 +571,7 @@ func TestCrypto_CryptoTransactionsPaginated(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving "+testCase.name, func(t *testing.T) {
 			rows, err := connection.CryptoTransactionsPaginated(testCase.clientID, testCase.ticker,
 				testCase.limit, testCase.offset, testCase.startTime, testCase.endTime)
 			require.NoError(t, err, "error expectation failed.")

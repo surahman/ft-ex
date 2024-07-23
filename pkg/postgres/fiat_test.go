@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -33,7 +32,7 @@ func TestFiat_FiatCreateAccount(t *testing.T) {
 	for key, testCase := range getTestFiatAccounts(clientID1, clientID2) {
 		parameters := testCase
 
-		t.Run(fmt.Sprintf("Inserting %s", key), func(t *testing.T) {
+		t.Run("Inserting "+key, func(t *testing.T) {
 			for _, param := range parameters {
 				accInfo := param
 				rowCount, err := connection.Query.fiatCreateAccount(ctx, &accInfo)
@@ -122,7 +121,7 @@ func TestFiat_FiatRowLockAccount(t *testing.T) {
 	for _, testCase := range testCases {
 		test := testCase
 
-		t.Run(fmt.Sprintf("Inserting %s", test.name), func(t *testing.T) {
+		t.Run("Inserting "+test.name, func(t *testing.T) {
 			_, err := connection.Query.fiatRowLockAccount(ctx, &test.parameter)
 			test.errExpected(t, err, "error expectation condition failed.")
 		})
@@ -212,7 +211,7 @@ func TestFiat_FiatUpdateAccountBalance(t *testing.T) {
 	for _, testCase := range testCases {
 		test := testCase
 
-		t.Run(fmt.Sprintf("Inserting %s", test.name), func(t *testing.T) {
+		t.Run("Inserting "+test.name, func(t *testing.T) {
 			result, err := connection.Query.fiatUpdateAccountBalance(ctx, &test.parameter)
 			require.NoError(t, err, "error expectation condition failed.")
 			require.True(t, result.LastTxTs.Valid, "invalid last transaction timestamp.")
@@ -294,7 +293,7 @@ func TestFiat_FiatGetJournalTransaction(t *testing.T) {
 	for key, row := range txRows {
 		param := row
 
-		t.Run(fmt.Sprintf("Retrieving %s", key), func(t *testing.T) {
+		t.Run("Retrieving "+key, func(t *testing.T) {
 			tx := testCases[key]
 
 			srcRecord, err := connection.Query.fiatGetJournalTransaction(ctx,
@@ -401,10 +400,11 @@ func TestFiat_FiatGetJournalTransactionForAccount(t *testing.T) {
 	// Insert new fiat accounts.
 	for _, testCase := range testCases {
 		test := testCase
-
-		t.Run(fmt.Sprintf("Inserting %s", test.name), func(t *testing.T) {
+		t.Run("Inserting "+test.name, func(t *testing.T) {
 			results, err := connection.Query.fiatGetJournalTransactionForAccount(ctx, &test.parameter)
+
 			test.errExpected(t, err, "error expectation condition failed.")
+
 			for _, result := range results {
 				require.Equal(t, test.parameter.Currency, result.Currency, "currency type mismatch.")
 				require.False(t, result.ClientID.IsNil(), "invalid UUID.")
@@ -479,7 +479,7 @@ func TestFiat_GetFiatAccount(t *testing.T) {
 	// Insert new fiat accounts.
 	for _, testCase := range testCases {
 		parameters := testCase.parameter
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving "+testCase.name, func(t *testing.T) {
 			results, err := connection.Query.fiatGetAccount(ctx, &parameters)
 			testCase.errExpectation(t, err, "error expectation failed.")
 			testCase.boolExpectation(t, !results.ClientID.IsNil(), "clientId validity expectation failed.")
@@ -561,7 +561,7 @@ func TestFiat_FiatGetAllAccounts(t *testing.T) {
 	defer cancel()
 
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving "+testCase.name, func(t *testing.T) {
 			rows, err := connection.Query.fiatGetAllAccounts(ctx, &fiatGetAllAccountsParams{
 				ClientID: testCase.clientID,
 				Currency: testCase.baseCurrency,
@@ -718,7 +718,7 @@ func TestFiat_FiatGetAllJournalTransactionPaginated(t *testing.T) {
 
 	for _, testCase := range testCases {
 		parameters := testCase.parameters
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving "+testCase.name, func(t *testing.T) {
 			rows, err := connection.Query.fiatGetAllJournalTransactionsPaginated(ctx, &parameters)
 			require.NoError(t, err, "error expectation failed.")
 			require.Len(t, rows, testCase.expectedCont, "expected row count mismatch.")

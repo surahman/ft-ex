@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -282,7 +281,7 @@ func TestFiat_FiatTransactionsCurrencyPaginated(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("Retrieving %s", testCase.name), func(t *testing.T) {
+		t.Run("Retrieving"+testCase.name, func(t *testing.T) {
 			rows, err := connection.FiatTransactionsPaginated(testCase.clientID, testCase.currency,
 				testCase.limit, testCase.offset, testCase.startTime, testCase.endTime)
 			require.NoError(t, err, "error expectation failed.")

@@ -128,7 +128,9 @@ func TestCryptoResolver_OpenCrypto(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -428,7 +430,9 @@ func TestCryptoResolver_OfferCrypto(t *testing.T) { //nolint:maintidx
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -698,7 +702,9 @@ func TestCryptoResolver_ExchangeCrypto(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -897,7 +903,9 @@ func TestCryptoResolver_BalanceCrypto(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1155,7 +1163,9 @@ func TestCryptoResolver_BalanceAllCrypto(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1312,7 +1322,9 @@ func TestCryptoResolver_TransactionDetailsCrypto(t *testing.T) { //nolint:dupl
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1562,7 +1574,9 @@ func TestCryptoResolver_TransactionDetailsAllCrypto(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
