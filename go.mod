@@ -2,8 +2,6 @@ module github.com/surahman/FTeX
 
 go 1.21
 
-toolchain go1.21.10
-
 require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/gin-gonic/gin v1.10.0
