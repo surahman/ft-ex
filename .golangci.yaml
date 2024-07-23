@@ -1,32 +1,22 @@
 linters:
   enable-all: true
   disable:
-    - deadcode
     - depguard
-    - exhaustivestruct
     - exhaustruct
     - funlen
     - gochecknoglobals
     - gochecknoinits
     - godox
-    - golint
     - gofumpt
     - goerr113
-    - ifshort
-    - interfacer
     - ireturn
-    - maligned
     - nonamedreturns
-    - nosnakecase
-    - structcheck
-    - scopelint
     - testpackage
-    - varcheck
 linters-settings:
   cyclop:
     max-complexity: 12
     skip-tests: true
-  gomnd:
+  mnd:
     ignored-functions:
       - 'math.*'
       - 'decimal.*'
