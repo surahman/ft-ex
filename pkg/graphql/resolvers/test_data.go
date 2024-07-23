@@ -21,7 +21,7 @@ func getUsersQuery() map[string]string {
 		}`,
 
 		"refresh": `{
-		"query": "mutation { refreshToken() { token expires threshold }}"
+		"query": "mutation { refreshToken { token expires threshold }}"
 		}`,
 
 		"delete": `{
