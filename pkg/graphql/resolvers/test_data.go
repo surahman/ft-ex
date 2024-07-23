@@ -3,7 +3,7 @@ package graphql
 // getHealthcheckQuery is the health check query.
 func getHealthcheckQuery() string {
 	return `{
-		"query": "query { healthcheck() }"
+		"query": "query { healthcheck }"
 	}`
 }
 
