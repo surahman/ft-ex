@@ -141,7 +141,9 @@ func TestFiatResolver_OpenFiat(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -364,7 +366,9 @@ func TestFiatResolver_DepositFiat(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -672,7 +676,9 @@ func TestFiatResolver_ExchangeOfferFiat(t *testing.T) { //nolint:maintidx
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1047,7 +1053,9 @@ func TestFiatResolver_ExchangeTransferFiat(t *testing.T) { //nolint:maintidx
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1257,7 +1265,9 @@ func TestFiatResolver_BalanceFiat(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1515,7 +1525,9 @@ func TestFiatResolver_BalanceAllFiat(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1738,7 +1750,9 @@ func TestFiatResolver_TransactionDetailsFiat(t *testing.T) { //nolint:dupl
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -1994,7 +2008,9 @@ func TestFiatResolver_TransactionDetailsAllFiat(t *testing.T) {
 				bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -112,7 +111,7 @@ func TestUDF_RoundHalfEven(t *testing.T) {
 	for _, testCase := range testCases {
 		test := testCase
 
-		t.Run(fmt.Sprintf("Round Half-to-Even: %s", test.name), func(t *testing.T) {
+		t.Run("Round Half-to-Even: "+test.name, func(t *testing.T) {
 			t.Parallel()
 
 			result, err := connection.Query.testRoundHalfEven(ctx, &test.parameters)

@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -252,7 +251,7 @@ func TestRedisImpl_Set_Get_Del(t *testing.T) {
 	for _, testCase := range testCases {
 		test := testCase
 
-		t.Run(fmt.Sprintf("Expiration check: %s", test.name), func(t *testing.T) {
+		t.Run("Expiration check: "+test.name, func(t *testing.T) {
 			var deleted *string
 			err := connection.Get(test.key, deleted)
 			require.Nil(t, deleted, "returned data from a deleted record should be nil")

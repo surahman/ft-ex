@@ -150,6 +150,8 @@ func (a *authImpl) GenerateJWT(clientID uuid.UUID) (*models.JWTAuthResponse, err
 }
 
 // ValidateJWT will validate a signed JWT and extracts the Client ID and unix expiration timestamp from it.
+//
+//nolint:revive
 func (a *authImpl) ValidateJWT(signedToken string) (uuid.UUID, int64, error) {
 	token, err := jwt.ParseWithClaims(signedToken, &jwtClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.conf.JWTConfig.Key), nil

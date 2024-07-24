@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"testing"
 
@@ -71,7 +71,7 @@ func TestError_Is(t *testing.T) {
 			boolExpectation: require.False,
 		}, {
 			name:            "base different",
-			inputErr:        fmt.Errorf("different error"),
+			inputErr:        errors.New("different error"),
 			baseErr:         nil,
 			boolExpectation: require.False,
 		}, {

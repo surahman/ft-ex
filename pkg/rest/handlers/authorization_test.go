@@ -135,7 +135,9 @@ func TestAuthMiddleware_Handler(t *testing.T) {
 			router.POST(test.path, AuthMiddleware(mockAuth, mockDB, zapLogger, "Authorization"))
 			req, _ := http.NewRequestWithContext(context.TODO(), http.MethodPost, test.path, nil)
 			req.Header.Set("Authorization", test.token)
+
 			w := httptest.NewRecorder()
+
 			router.ServeHTTP(w, req)
 
 			// Verify responses

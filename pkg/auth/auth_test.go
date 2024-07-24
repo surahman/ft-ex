@@ -165,7 +165,9 @@ func TestAuthImpl_CheckPassword(t *testing.T) {
 		test := testCase
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
+
 			err := testAuth.CheckPassword(test.hashed, test.plaintext)
+
 			test.expectErr(t, err, "error expectation failed.")
 		})
 	}
@@ -246,6 +248,7 @@ func TestAuthImpl_ValidateJWT(t *testing.T) {
 			if test.issuerName != "" {
 				testAuthImpl.conf.JWTConfig.Issuer = test.issuerName
 			}
+
 			if test.expirationDuration != 0 {
 				testAuthImpl.conf.JWTConfig.ExpirationDuration = test.expirationDuration
 			}
@@ -319,7 +322,9 @@ func TestAuthImpl_RefreshJWT(t *testing.T) {
 			require.Greater(t, expiresAt, int64(0), "invalid expiration time of original token")
 
 			time.Sleep(time.Duration(test.sleepTime) * time.Second)
+
 			refreshedToken, err := testAuthImpl.RefreshJWT(testJWT.Token)
+
 			test.expectErr(t, err, "error case when refreshing JWT failed")
 
 			if err != nil {

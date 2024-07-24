@@ -133,7 +133,9 @@ func TestUserResolver_RegisterUser(t *testing.T) {
 
 			req, _ := http.NewRequestWithContext(context.TODO(), http.MethodPost, test.path, bytes.NewBufferString(test.user))
 			req.Header.Set("Content-Type", "application/json")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -418,7 +420,9 @@ func TestUserResolver_DeleteUser(t *testing.T) { //nolint:maintidx
 			req, _ := http.NewRequestWithContext(context.TODO(), http.MethodPost, test.path, bytes.NewBufferString(test.query))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", authToken)
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -551,7 +555,9 @@ func TestUserResolver_LoginUser(t *testing.T) {
 
 			req, _ := http.NewRequestWithContext(context.TODO(), http.MethodPost, test.path, bytes.NewBufferString(test.user))
 			req.Header.Set("Content-Type", "application/json")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses
@@ -805,7 +811,9 @@ func TestUserResolver_RefreshToken(t *testing.T) {
 				bytes.NewBufferString(testUserQuery["refresh"]))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "some valid auth token goes here")
+
 			recorder := httptest.NewRecorder()
+
 			router.ServeHTTP(recorder, req)
 
 			// Verify responses

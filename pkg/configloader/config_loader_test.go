@@ -78,28 +78,29 @@ func TestConfigLoader(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
-			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+testFilename, []byte(testCase.input), 0644),
+			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+testFilename, []byte(test.input), 0644),
 				"Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := Load(fs, actual, testFilename, testPrefix, "yaml")
-			testCase.expectErr(t, err)
+			test.expectErr(t, err)
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectLen, "Expected errors count is incorrect: %v", err)
+				require.Lenf(t, validationError.Errors, test.expectLen, "Expected errors count is incorrect: %v", err)
 
 				return
 			}
 
 			// Load expected struct.
 			expected := &config{}
-			require.NoError(t, yaml.Unmarshal([]byte(testCase.input), expected), "failed to unmarshal expected constants")
+			require.NoError(t, yaml.Unmarshal([]byte(test.input), expected), "failed to unmarshal expected constants")
 			require.True(t, reflect.DeepEqual(expected, actual))
 
 			// Test configuring of environment variable.
@@ -107,12 +108,14 @@ func TestConfigLoader(t *testing.T) {
 			lvl1Child2 := 49
 			lvl2Child1 := 29
 			lvl2Child3 := xid.New().String()
+
 			t.Setenv(keyspaceLevel1+"CHILDONE", lvl1Child1)
 			t.Setenv(keyspaceLevel1+"CHILDTWO", strconv.Itoa(lvl1Child2))
 			t.Setenv(keyspaceLevel1+"CHILDTHREE", strconv.FormatBool(false))
 			t.Setenv(keyspaceLevel2+"CHILDONE", strconv.Itoa(lvl2Child1))
 			t.Setenv(keyspaceLevel2+"CHILDTWO", strconv.FormatBool(false))
 			t.Setenv(keyspaceLevel2+"CHILDTHREE", lvl2Child3)
+
 			err = Load(fs, actual, testFilename, testPrefix, "yaml")
 			require.NoErrorf(t, err, "failed to load constants file: %v", err)
 			require.Equal(t, lvl1Child1, actual.ParentLevel1.ChildOne, "failed to load level 1 child 1")

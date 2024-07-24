@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -23,7 +22,7 @@ func TestCreateUser(t *testing.T) {
 	for key, testCase := range getTestUsers() {
 		user := testCase
 
-		t.Run(fmt.Sprintf("Test case %s", key), func(t *testing.T) {
+		t.Run("Test case "+key, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), time.Second)
 
 			defer cancel()
@@ -74,7 +73,7 @@ func TestPostgres_DeleteUser(t *testing.T) {
 
 	// Remove all inserted users.
 	for _, clientID := range clientIDs {
-		t.Run(fmt.Sprintf("Deleting User: %s", clientID.String()), func(t *testing.T) {
+		t.Run("Deleting User: "+clientID.String(), func(t *testing.T) {
 			rowsAffected, err = connection.Query.userDelete(ctx, clientID)
 			require.NoError(t, err, "failed to execute delete on user.")
 			require.Equal(t, int64(1), rowsAffected, "failed to execute delete on user.")
@@ -102,7 +101,7 @@ func TestGetClientIdUser(t *testing.T) {
 
 	// Get Client IDs for all inserted users.
 	for key, testCase := range getTestUsers() {
-		t.Run(fmt.Sprintf("Getting Client ID: %s", key), func(t *testing.T) {
+		t.Run("Getting Client ID: "+key, func(t *testing.T) {
 			result, err = connection.Query.userGetClientId(ctx, testCase.Username)
 			require.NoError(t, err, "failed to get client id for user.")
 			require.False(t, result.IsNil(), "invalid client id for user.")
@@ -131,7 +130,7 @@ func TestGetCredentialsUser(t *testing.T) {
 
 	// Get Client IDs for all inserted users.
 	for key, testCase := range getTestUsers() {
-		t.Run(fmt.Sprintf("Getting credentials: %s", key), func(t *testing.T) {
+		t.Run("Getting credentials: "+key, func(t *testing.T) {
 			result, err = connection.Query.userGetCredentials(ctx, testCase.Username)
 			require.NoError(t, err, "failed to get client id for user.")
 			require.False(t, result.ClientID.IsNil(), "invalid client id for user.")
@@ -170,10 +169,12 @@ func TestGetInfoUser(t *testing.T) {
 	testUsers := getTestUsers()
 
 	for _, clientID := range clientIDs {
-		t.Run(fmt.Sprintf("Getting user information: %s", clientID.String()), func(t *testing.T) {
+		t.Run("Getting user information: "+clientID.String(), func(t *testing.T) {
 			result, err = connection.Query.userGetInfo(ctx, clientID)
 			require.NoError(t, err, "failed to get client id for user.")
+
 			expected := testUsers[result.Username]
+
 			require.False(t, result.ClientID.IsNil(), "invalid client id for user.")
 			require.False(t, result.IsDeleted, "deleted flag for user is set.")
 			require.Equal(t, expected.FirstName, result.FirstName, "first name mismatch.")
@@ -205,7 +206,7 @@ func TestPostgres_IsDeletedUser(t *testing.T) {
 
 	// Remove all inserted users.
 	for _, clientID := range clientIDs {
-		t.Run(fmt.Sprintf("Checking deleted status of user: %s", clientID.String()), func(t *testing.T) {
+		t.Run("Checking deleted status of user: "+clientID.String(), func(t *testing.T) {
 			// Before deletion.
 			isDeleted, err = connection.Query.userIsDeleted(ctx, clientID)
 			require.NoError(t, err, "failed to retrieve a/c active status user.")

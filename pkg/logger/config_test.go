@@ -2,7 +2,6 @@ package logger
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -15,8 +14,8 @@ import (
 )
 
 func TestZapConfig_Load(t *testing.T) {
-	envCfgKey := fmt.Sprintf("%s_BUILTINCONFIG", constants.LoggerPrefix())
-	envEncKey := fmt.Sprintf("%s_BUILTINENCODERCONFIG", constants.LoggerPrefix())
+	envCfgKey := constants.LoggerPrefix() + "_BUILTINCONFIG"
+	envEncKey := constants.LoggerPrefix() + "_BUILTINENCODERCONFIG"
 
 	testCases := []struct {
 		name      string
@@ -70,39 +69,40 @@ func TestZapConfig_Load(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
 			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+constants.LoggerFileName(),
-				[]byte(testCase.input), 0644), "Failed to write in memory file")
+				[]byte(test.input), 0644), "Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := actual.Load(fs)
-			testCase.expectErr(t, err)
+			test.expectErr(t, err)
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectLen, "Expected errors count is incorrect: %v", err)
+				require.Lenf(t, validationError.Errors, test.expectLen, "Expected errors count is incorrect: %v", err)
 
 				return
 			}
 
 			// Load expected struct.
 			expected := &config{}
-			require.NoError(t, yaml.Unmarshal([]byte(testCase.input), expected), "failed to unmarshal expected constants")
+			require.NoError(t, yaml.Unmarshal([]byte(test.input), expected), "failed to unmarshal expected constants")
 			require.True(t, reflect.DeepEqual(expected, actual))
 
 			// Test configuring of environment variable.
-			t.Setenv(envCfgKey, testCase.cfgKey)
-			t.Setenv(envEncKey, testCase.encKey)
+			t.Setenv(envCfgKey, test.cfgKey)
+			t.Setenv(envEncKey, test.encKey)
 			require.NoErrorf(t, actual.Load(fs), "Failed to load constants file: %v", err)
 
-			require.Equalf(t, testCase.cfgKey, actual.BuiltinConfig, "Failed to load environment variable into constants")
-			require.Equalf(t, testCase.encKey, actual.BuiltinEncoderConfig, "Failed to load environment variable into encoder")
+			require.Equalf(t, test.cfgKey, actual.BuiltinConfig, "Failed to load environment variable into constants")
+			require.Equalf(t, test.encKey, actual.BuiltinEncoderConfig, "Failed to load environment variable into encoder")
 
-			testCase.expectNil(t, actual.GeneralConfig, "Check for nil general constants failed")
+			test.expectNil(t, actual.GeneralConfig, "Check for nil general constants failed")
 		})
 	}
 }
