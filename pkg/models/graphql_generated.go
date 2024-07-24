@@ -29,3 +29,9 @@ type FiatPaginatedTxDetailsRequest struct {
 	Month      *string `json:"month,omitempty"`
 	Year       *string `json:"year,omitempty"`
 }
+
+type Mutation struct {
+}
+
+type Query struct {
+}

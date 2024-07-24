@@ -47,6 +47,7 @@ func TestGinContextFromContext(t *testing.T) {
 			_, err := GinContextFromContext(test.ctx, zapLogger)
 
 			test.expectErr(t, err, "error expectation failed")
+
 			if err != nil {
 				require.Contains(t, err.Error(), test.expectedMsg, "incorrect error message returned")
 			}
@@ -167,6 +168,7 @@ func TestAuthorizationCheck(t *testing.T) {
 			_, _, err := AuthorizationCheck(test.ctx, mockAuth, mockDB, zapLogger, testAuthHeaderKey)
 
 			test.expectErr(t, err, "error expectation failed")
+
 			if err != nil {
 				require.Contains(t, err.Error(), test.expectedMsg, "incorrect error message returned")
 			}

@@ -79,21 +79,22 @@ func TestRestConfigs_Load(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
 			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+constants.HTTPRESTFileName(),
-				[]byte(testCase.input), 0644), "Failed to write in memory file")
+				[]byte(test.input), 0644), "Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := actual.Load(fs)
-			testCase.expectErr(t, err)
+			test.expectErr(t, err)
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectErrCnt,
+				require.Lenf(t, validationError.Errors, test.expectErrCnt,
 					"expected errors count is incorrect: %v", err)
 
 				return
@@ -101,7 +102,7 @@ func TestRestConfigs_Load(t *testing.T) {
 
 			// Load expected struct.
 			expected := &config{}
-			require.NoError(t, yaml.Unmarshal([]byte(testCase.input), expected), "failed to unmarshal expected constants")
+			require.NoError(t, yaml.Unmarshal([]byte(test.input), expected), "failed to unmarshal expected constants")
 			require.True(t, reflect.DeepEqual(expected, actual))
 
 			// Test configuring of environment variable.
@@ -113,6 +114,7 @@ func TestRestConfigs_Load(t *testing.T) {
 			readTimeout := time.Duration(4)
 			writeTimeout := time.Duration(5)
 			readHeaderTimeout := time.Duration(7)
+
 			t.Setenv(keyspaceServer+"BASEPATH", basePath)
 			t.Setenv(keyspaceServer+"SWAGGERPATH", swaggerPath)
 			t.Setenv(keyspaceServer+"PORTNUMBER", strconv.Itoa(portNumber))

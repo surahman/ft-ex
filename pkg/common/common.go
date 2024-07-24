@@ -85,18 +85,18 @@ func HTTPTransactionInfoPaginatedRequest(auth auth.Auth, monthStr, yearStr, time
 
 	// Extract year and month.
 	if startYear, err = strconv.ParseInt(yearStr, 10, 32); err != nil {
-		return periodStart, periodEnd, pageCursor, fmt.Errorf("invalid year")
+		return periodStart, periodEnd, pageCursor, errors.New("invalid year")
 	}
 
 	if startMonth, err = strconv.ParseInt(monthStr, 10, 32); err != nil {
-		return periodStart, periodEnd, pageCursor, fmt.Errorf("invalid month")
+		return periodStart, periodEnd, pageCursor, errors.New("invalid month")
 	}
 
 	// Setup end year and month.
 	endYear = startYear
 	endMonth = startMonth + 1
 
-	if endMonth == 13 { //nolint:gomnd
+	if endMonth == 13 { //nolint:mnd,gomnd
 		endMonth = 1
 		endYear++
 	}
@@ -151,8 +151,8 @@ func HTTPTransactionUnpackPageCursor(auth auth.Auth, pageCursor string) (
 	}
 
 	components := strings.Split(string(buffer), ",")
-	if len(components) != 3 { //nolint:gomnd
-		return startPGTS, "", endPGTS, "", -1, fmt.Errorf("decrypted page curror is invalid")
+	if len(components) != 3 { //nolint:mnd,gomnd
+		return startPGTS, "", endPGTS, "", -1, errors.New("decrypted page curror is invalid")
 	}
 
 	offset, err := strconv.ParseInt(components[2], 10, 32)
@@ -214,7 +214,7 @@ func HTTPTxParseQueryParams(auth auth.Auth, logger *logger.Logger, params *HTTPP
 		var pageSize int64
 
 		if pageSize, err = strconv.ParseInt(params.PageSizeStr, 10, 32); err != nil {
-			return http.StatusBadRequest, fmt.Errorf("invalid page size")
+			return http.StatusBadRequest, errors.New("invalid page size")
 		}
 
 		params.PageSize = int32(pageSize)
@@ -228,7 +228,7 @@ func HTTPTxParseQueryParams(auth auth.Auth, logger *logger.Logger, params *HTTPP
 	if len(params.PageCursorStr) > 0 {
 		if params.PeriodStart, periodStartStr, params.PeriodEnd, periodEndStr, params.Offset, err =
 			HTTPTransactionUnpackPageCursor(auth, params.PageCursorStr); err != nil {
-			return http.StatusBadRequest, fmt.Errorf("invalid next page")
+			return http.StatusBadRequest, errors.New("invalid next page")
 		}
 
 		// Prepare next page cursor. Adjust offset to move along to next record set.
@@ -236,7 +236,7 @@ func HTTPTxParseQueryParams(auth auth.Auth, logger *logger.Logger, params *HTTPP
 			auth, periodStartStr, periodEndStr, params.Offset+params.PageSize); err != nil {
 			logger.Info("failed to encrypt currency paginated transactions next page cursor", zap.Error(err))
 
-			return http.StatusInternalServerError, fmt.Errorf(constants.RetryMessageString())
+			return http.StatusInternalServerError, errors.New(constants.RetryMessageString())
 		}
 	} else {
 		if params.PeriodStart, params.PeriodEnd, params.NextPage, err =
@@ -244,7 +244,7 @@ func HTTPTxParseQueryParams(auth auth.Auth, logger *logger.Logger, params *HTTPP
 				params.MonthStr, params.YearStr, params.TimezoneStr, params.PageSize); err != nil {
 			logger.Info("failed to prepare time periods for paginated currency transaction details", zap.Error(err))
 
-			return http.StatusInternalServerError, fmt.Errorf(constants.RetryMessageString())
+			return http.StatusInternalServerError, errors.New(constants.RetryMessageString())
 		}
 	}
 

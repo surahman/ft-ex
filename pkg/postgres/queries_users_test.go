@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -124,7 +123,7 @@ func TestQueries_IsDeletedUser(t *testing.T) {
 
 	// Remove all inserted users.
 	for _, clientID := range clientIDs {
-		t.Run(fmt.Sprintf("Checking deleted status of user: %s", clientID.String()), func(t *testing.T) {
+		t.Run("Checking deleted status of user: "+clientID.String(), func(t *testing.T) {
 			// Before deletion.
 			isDeleted, err = connection.UserIsDeleted(clientID)
 			require.NoError(t, err, "failed to retrieve a/c active status user.")

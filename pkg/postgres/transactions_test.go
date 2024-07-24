@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"strings"
 	"sync"
 	"testing"
@@ -210,7 +210,7 @@ func TestTransactions_FiatExternalTransfer(t *testing.T) {
 		test := testCase
 
 		go func() {
-			t.Run(fmt.Sprintf("Transferring %s", test.name), func(t *testing.T) {
+			t.Run("Transferring "+test.name, func(t *testing.T) {
 				defer wg.Done()
 
 				// External transfer
@@ -285,7 +285,7 @@ func TestTransactions_FiatExternalTransfer_Mock(t *testing.T) {
 			expectedErrMsg:      "row lock failure",
 			rowLockTimes:        1,
 			rowLockReturn:       &rowLockDecimal,
-			rowLockError:        fmt.Errorf("row lock failure"),
+			rowLockError:        errors.New("row lock failure"),
 			extJournalTimes:     0,
 			extJournalReturn:    &journalEntryRow,
 			extJournalError:     nil,
@@ -300,7 +300,7 @@ func TestTransactions_FiatExternalTransfer_Mock(t *testing.T) {
 			rowLockError:        nil,
 			extJournalTimes:     1,
 			extJournalReturn:    &journalEntryRow,
-			extJournalError:     fmt.Errorf("journal entry failure"),
+			extJournalError:     errors.New("journal entry failure"),
 			updateBalanceTimes:  0,
 			updateBalanceReturn: &accountBalanceRow,
 			updateBalanceError:  nil,
@@ -315,13 +315,13 @@ func TestTransactions_FiatExternalTransfer_Mock(t *testing.T) {
 			extJournalError:     nil,
 			updateBalanceTimes:  1,
 			updateBalanceReturn: &accountBalanceRow,
-			updateBalanceError:  fmt.Errorf("account balance update failure"),
+			updateBalanceError:  errors.New("account balance update failure"),
 		},
 	}
 
 	for _, testCase := range testCases {
 		test := testCase
-		t.Run(fmt.Sprintf("Failure: %s", test.name), func(t *testing.T) {
+		t.Run("Failure: "+test.name, func(t *testing.T) {
 			t.Parallel()
 
 			mockCtrl := gomock.NewController(t)
@@ -559,7 +559,7 @@ func TestTransactions_FiatTransactionRowLockAndBalanceCheck_mock(t *testing.T) {
 			srcAccount:           uuid1USD,
 			dstAccount:           uuid2USD,
 			firstRowLockBalance:  decimal.Decimal{},
-			firstRowLockErr:      fmt.Errorf("first row lock failure"),
+			firstRowLockErr:      errors.New("first row lock failure"),
 			firstRowLockTimes:    1,
 			secondRowLockBalance: decimal.Decimal{},
 			secondRowLockErr:     nil,
@@ -573,7 +573,7 @@ func TestTransactions_FiatTransactionRowLockAndBalanceCheck_mock(t *testing.T) {
 			firstRowLockErr:      nil,
 			firstRowLockTimes:    1,
 			secondRowLockBalance: decimal.Decimal{},
-			secondRowLockErr:     fmt.Errorf("second row lock failure"),
+			secondRowLockErr:     errors.New("second row lock failure"),
 			secondRowLockTimes:   1,
 		}, {
 			name:           "Insufficient balance failure.",
@@ -918,7 +918,7 @@ func TestTransactions_FiatInternalTransfer_Mock(t *testing.T) {
 		{
 			name:           "Row lock and balance failure.",
 			expectedErrMsg: "row lock failure",
-			rowLockError:   fmt.Errorf("row lock failure"),
+			rowLockError:   errors.New("row lock failure"),
 			journalReturn:  &journalEntryRow,
 			journalError:   nil,
 			journalTimes:   0,
@@ -933,7 +933,7 @@ func TestTransactions_FiatInternalTransfer_Mock(t *testing.T) {
 			expectedErrMsg: "journal entry failure",
 			rowLockError:   nil,
 			journalReturn:  &journalEntryRow,
-			journalError:   fmt.Errorf("journal entry failure"),
+			journalError:   errors.New("journal entry failure"),
 			journalTimes:   1,
 			creditReturn:   &balanceUpdateRow,
 			creditError:    nil,
@@ -949,7 +949,7 @@ func TestTransactions_FiatInternalTransfer_Mock(t *testing.T) {
 			journalError:   nil,
 			journalTimes:   1,
 			creditReturn:   &balanceUpdateRow,
-			creditError:    fmt.Errorf("balance credit failure"),
+			creditError:    errors.New("balance credit failure"),
 			creditTimes:    1,
 			debitReturn:    &balanceUpdateRow,
 			debitError:     nil,
@@ -965,7 +965,7 @@ func TestTransactions_FiatInternalTransfer_Mock(t *testing.T) {
 			creditError:    nil,
 			creditTimes:    1,
 			debitReturn:    &balanceUpdateRow,
-			debitError:     fmt.Errorf("balance debit failure"),
+			debitError:     errors.New("balance debit failure"),
 			debitTimes:     1,
 		},
 	}

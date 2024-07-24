@@ -264,6 +264,7 @@ func TestHandlers_DepositFiat(t *testing.T) {
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack success response.")
 
 			errorMessage, ok := resp["message"].(string)
@@ -524,6 +525,7 @@ func TestHandlers_ExchangeOfferFiat(t *testing.T) { //nolint:maintidx
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack response.")
 
 			errorMessage, ok := resp["message"].(string)
@@ -884,6 +886,7 @@ func TestHandler_ExchangeTransferFiat(t *testing.T) { //nolint:maintidx
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack response.")
 
 			errorMessage, ok := resp["message"].(string)
@@ -997,6 +1000,7 @@ func TestHandler_BalanceFiat(t *testing.T) { //nolint:dupl
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack response.")
 
 			actualMessage, ok := resp["message"].(string)
@@ -1149,6 +1153,7 @@ func TestHandler_TxDetailsFiat(t *testing.T) {
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack response.")
 
 			actualMessage, ok := resp["message"].(string)
@@ -1360,6 +1365,7 @@ func TestHandler_BalanceFiatPaginated(t *testing.T) { //nolint:dupl
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack response.")
 
 			actualMessage, ok := resp["message"].(string)
@@ -1572,6 +1578,7 @@ func TestHandler_TxDetailsFiatPaginated(t *testing.T) {
 			require.Equal(t, test.expectedStatus, recorder.Code, "expected status codes do not match")
 
 			var resp map[string]interface{}
+
 			require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp), "failed to unpack response.")
 
 			actualMessage, ok := resp["message"].(string)

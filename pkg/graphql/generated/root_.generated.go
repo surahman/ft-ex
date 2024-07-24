@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -18,6 +19,7 @@ import (
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
+		schema:     cfg.Schema,
 		resolvers:  cfg.Resolvers,
 		directives: cfg.Directives,
 		complexity: cfg.Complexity,
@@ -25,6 +27,7 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 }
 
 type Config struct {
+	Schema     *ast.Schema
 	Resolvers  ResolverRoot
 	Directives DirectiveRoot
 	Complexity ComplexityRoot
@@ -189,17 +192,21 @@ type ComplexityRoot struct {
 }
 
 type executableSchema struct {
+	schema     *ast.Schema
 	resolvers  ResolverRoot
 	directives DirectiveRoot
 	complexity ComplexityRoot
 }
 
 func (e *executableSchema) Schema() *ast.Schema {
+	if e.schema != nil {
+		return e.schema
+	}
 	return parsedSchema
 }
 
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
-	ec := executionContext{nil, e}
+	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
 
@@ -845,7 +852,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
-	ec := executionContext{rc, e}
+	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCryptoOfferRequest,
 		ec.unmarshalInputCryptoPaginatedTxDetailsRequest,
@@ -861,18 +868,33 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	switch rc.Operation.Operation {
 	case ast.Query:
 		return func(ctx context.Context) *graphql.Response {
-			if !first {
-				return nil
+			var response graphql.Response
+			var data graphql.Marshaler
+			if first {
+				first = false
+				ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
+				data = ec._Query(ctx, rc.Operation.SelectionSet)
+			} else {
+				if atomic.LoadInt32(&ec.pendingDeferred) > 0 {
+					result := <-ec.deferredResults
+					atomic.AddInt32(&ec.pendingDeferred, -1)
+					data = result.Result
+					response.Path = result.Path
+					response.Label = result.Label
+					response.Errors = result.Errors
+				} else {
+					return nil
+				}
 			}
-			first = false
-			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._Query(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
+			response.Data = buf.Bytes()
+			if atomic.LoadInt32(&ec.deferred) > 0 {
+				hasNext := atomic.LoadInt32(&ec.pendingDeferred) > 0
+				response.HasNext = &hasNext
 			}
+
+			return &response
 		}
 	case ast.Mutation:
 		return func(ctx context.Context) *graphql.Response {
@@ -898,20 +920,42 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 type executionContext struct {
 	*graphql.OperationContext
 	*executableSchema
+	deferred        int32
+	pendingDeferred int32
+	deferredResults chan graphql.DeferredResult
+}
+
+func (ec *executionContext) processDeferredGroup(dg graphql.DeferredGroup) {
+	atomic.AddInt32(&ec.pendingDeferred, 1)
+	go func() {
+		ctx := graphql.WithFreshResponseContext(dg.Context)
+		dg.FieldSet.Dispatch(ctx)
+		ds := graphql.DeferredResult{
+			Path:   dg.Path,
+			Label:  dg.Label,
+			Result: dg.FieldSet,
+			Errors: graphql.GetErrors(ctx),
+		}
+		// null fields should bubble up
+		if dg.FieldSet.Invalids > 0 {
+			ds.Result = graphql.Null
+		}
+		ec.deferredResults <- ds
+	}()
 }
 
 func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapSchema(parsedSchema), nil
+	return introspection.WrapSchema(ec.Schema()), nil
 }
 
 func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
+	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
 var sources = []*ast.Source{
@@ -1049,7 +1093,7 @@ type FiatDepositResponse {
     currency: String!
 }
 
-# FiatExchangeTransferResponse
+# FiatExchangeTransferResponse is the response to a Fiat exchange request.
 type FiatExchangeTransferResponse {
     sourceReceipt: FiatDepositResponse!
     destinationReceipt: FiatDepositResponse!
@@ -1139,6 +1183,7 @@ extend type Query {
 }
 `, BuiltIn: false},
 	{Name: "../schema/healthcheck.graphqls", Input: `type Query {
+    # healthcheck will ping the data tier to check for connectivity.
     healthcheck: String!
 }
 `, BuiltIn: false},
@@ -1147,7 +1192,7 @@ scalar Int32
 scalar Int64
 scalar UUID
 `, BuiltIn: false},
-	{Name: "../schema/user.graphqls", Input: `# User account information.
+	{Name: "../schema/user.graphqls", Input: `# UserAccount is user information.
 input UserAccount {
     firstname: String!
     lastname: String!
@@ -1155,13 +1200,13 @@ input UserAccount {
     userLoginCredentials: UserLoginCredentials!
 }
 
-# Login credentials.
+# UserLoginCredentials are the user's username and password.
 input UserLoginCredentials {
     username: String!
     password: String!
 }
 
-# User account deletion request.
+# DeleteUserRequest is a user account deletion request.
 input DeleteUserRequest {
     username: String!
     password: String!
@@ -1170,18 +1215,18 @@ input DeleteUserRequest {
 
 # Requests that might alter the state of data in the database.
 type Mutation {
-    # Send a user registration request and receive a JWT authorization token in response.
+    # registerUser is a user registration request. A JWT authorization token is returned as a successful response.
     registerUser(input: UserAccount): JWTAuthResponse!
 
-    # Send a user account deletion request.
+    # deleteUser is a mutation to soft delete a user account.
     deleteUser(input: DeleteUserRequest!): String!
 
-    # Send a user login request And receive a JWT authorization token in response. This has no side effects but is a
+    # loginUser is a login request And receive a JWT authorization token in response. This has no side effects but is a
     # mutation to force sequential execution. This stops operations such as delete and refresh from being run in
     # parallel with a login.
     loginUser(input: UserLoginCredentials!): JWTAuthResponse!
 
-    # Refreshes a users JWT if it is within the refresh time window.
+    # refreshToken refreshes a users JWT if it is within the refresh time window.
     refreshToken: JWTAuthResponse!
 }
 `, BuiltIn: false},

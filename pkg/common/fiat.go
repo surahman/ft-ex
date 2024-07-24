@@ -165,6 +165,7 @@ func HTTPFiatTransfer(auth auth.Auth, cache redis.Redis, db postgres.Postgres, l
 	// Extract Offer ID from request.
 	{
 		var rawOfferID []byte
+
 		if rawOfferID, err = auth.DecryptFromString(request.OfferID); err != nil {
 			logger.Warn("failed to decrypt Offer ID for Fiat transfer request", zap.Error(err))
 
@@ -181,6 +182,7 @@ func HTTPFiatTransfer(auth auth.Auth, cache redis.Redis, db postgres.Postgres, l
 			httpStatus int
 			httpMsg    string
 		)
+
 		if offer, httpStatus, httpMsg, err = HTTPGetCachedOffer(cache, logger, offerID); err != nil {
 			return nil, httpStatus, httpMsg, nil, fmt.Errorf("%w", err)
 		}
@@ -274,18 +276,18 @@ func HTTPFiatBalancePaginatedRequest(auth auth.Auth, currencyStr, limitStr strin
 
 	if len(currencyStr) > 0 {
 		if decrypted, err = auth.DecryptFromString(currencyStr); err != nil {
-			return currency, -1, fmt.Errorf("failed to decrypt next currency")
+			return currency, -1, errors.New("failed to decrypt next currency")
 		}
 	}
 
 	if err = currency.Scan(string(decrypted)); err != nil {
-		return currency, -1, fmt.Errorf("failed to parse currency")
+		return currency, -1, errors.New("failed to parse currency")
 	}
 
 	// Convert record limit to int and set base bound for bad input.
 	if len(limitStr) > 0 {
 		if limit, err = strconv.ParseInt(limitStr, 10, 32); err != nil {
-			return currency, -1, fmt.Errorf("failed to parse record limit")
+			return currency, -1, errors.New("failed to parse record limit")
 		}
 	}
 

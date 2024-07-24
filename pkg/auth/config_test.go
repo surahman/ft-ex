@@ -88,28 +88,29 @@ func TestAuthConfigs_Load(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
 			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+constants.AuthFileName(),
-				[]byte(testCase.input), 0644), "Failed to write in memory file")
+				[]byte(test.input), 0644), "Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := actual.Load(fs)
-			testCase.expectErr(t, err)
+			test.expectErr(t, err)
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectErrCnt, "expected errors count is incorrect: %v", err)
+				require.Lenf(t, validationError.Errors, test.expectErrCnt, "expected errors count is incorrect: %v", err)
 
 				return
 			}
 
 			// Load expected struct.
 			expected := &config{}
-			require.NoError(t, yaml.Unmarshal([]byte(testCase.input), expected), "failed to unmarshal expected constants")
+			require.NoError(t, yaml.Unmarshal([]byte(test.input), expected), "failed to unmarshal expected constants")
 			require.True(t, reflect.DeepEqual(expected, actual))
 
 			// Test configuring of environment variable.
@@ -119,6 +120,7 @@ func TestAuthConfigs_Load(t *testing.T) {
 			testBcryptCost := 16
 			testIssuer := "test issuer"
 			testCryptoSecret := "**crypto secret set in env var**"
+
 			t.Setenv(keyspaceJwt+"KEY", testKey)
 			t.Setenv(keyspaceJwt+"ISSUER", testIssuer)
 			t.Setenv(keyspaceJwt+"EXPIRATIONDURATION", strconv.FormatInt(testExpDur, 10))

@@ -92,21 +92,22 @@ func TestQuotesConfigs_Load(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
 			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+constants.QuotesFileName(),
-				[]byte(testCase.input), 0644), "Failed to write in memory file")
+				[]byte(test.input), 0644), "Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := actual.Load(fs)
-			testCase.expectErr(t, err, "error expectation failed after loading from mock filesystem.")
+			test.expectErr(t, err, "error expectation failed after loading from mock filesystem.")
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectErrCnt,
+				require.Lenf(t, validationError.Errors, test.expectErrCnt,
 					"expected errors count is incorrect: %v", err)
 
 				return
@@ -116,6 +117,7 @@ func TestQuotesConfigs_Load(t *testing.T) {
 			apiKeyFiat := xid.New().String()
 			headerKeyFiat := xid.New().String()
 			apiEndpointFiat := xid.New().String()
+
 			t.Setenv(envFiatKey+"APIKEY", apiKeyFiat)
 			t.Setenv(envFiatKey+"HEADERKEY", headerKeyFiat)
 			t.Setenv(envFiatKey+"ENDPOINT", apiEndpointFiat)
@@ -123,12 +125,14 @@ func TestQuotesConfigs_Load(t *testing.T) {
 			apiKeyCrypto := xid.New().String()
 			headerKeyCrypto := xid.New().String()
 			apiEndpointCrypto := xid.New().String()
+
 			t.Setenv(envCryptoKey+"APIKEY", apiKeyCrypto)
 			t.Setenv(envCryptoKey+"HEADERKEY", headerKeyCrypto)
 			t.Setenv(envCryptoKey+"ENDPOINT", apiEndpointCrypto)
 
 			timeout := 999 * time.Second
 			userAgent := xid.New().String()
+
 			t.Setenv(envConnKey+"TIMEOUT", timeout.String())
 			t.Setenv(envConnKey+"USERAGENT", userAgent)
 

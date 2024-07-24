@@ -65,21 +65,22 @@ func TestConfigLoader(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+		test := testCase
+		t.Run(test.name, func(t *testing.T) {
 			// Configure mock filesystem.
 			fs := afero.NewMemMapFs()
 			require.NoError(t, fs.MkdirAll(constants.EtcDir(), 0644), "Failed to create in memory directory")
 			require.NoError(t, afero.WriteFile(fs, constants.EtcDir()+constants.PostgresFileName(),
-				[]byte(testCase.input), 0644), "Failed to write in memory file")
+				[]byte(test.input), 0644), "Failed to write in memory file")
 
 			// Load from mock filesystem.
 			actual := &config{}
 			err := actual.Load(fs)
-			testCase.expectErr(t, err)
+			test.expectErr(t, err)
 
 			validationError := &validator.ValidationError{}
 			if errors.As(err, &validationError) {
-				require.Lenf(t, validationError.Errors, testCase.expectLen,
+				require.Lenf(t, validationError.Errors, test.expectLen,
 					"Expected errors count is incorrect: %v", err)
 
 				return
@@ -87,7 +88,7 @@ func TestConfigLoader(t *testing.T) {
 
 			// Load expected struct.
 			expected := &config{}
-			require.NoError(t, yaml.Unmarshal([]byte(testCase.input), expected),
+			require.NoError(t, yaml.Unmarshal([]byte(test.input), expected),
 				"failed to unmarshal expected constants")
 			require.Truef(t, reflect.DeepEqual(expected, actual),
 				"configurations loaded from disk do not match, expected %v, actual %v", expected, actual)
@@ -95,6 +96,7 @@ func TestConfigLoader(t *testing.T) {
 			// Test configuring of environment variable.
 			username := xid.New().String()
 			password := xid.New().String()
+
 			t.Setenv(envAuthKey+"USERNAME", username)
 			t.Setenv(envAuthKey+"PASSWORD", password)
 
@@ -103,6 +105,7 @@ func TestConfigLoader(t *testing.T) {
 			port := 5555
 			timeout := 47
 			maxConnAttempts := 9
+
 			t.Setenv(envConnKey+"DATABASE", database)
 			t.Setenv(envConnKey+"HOST", host)
 			t.Setenv(envConnKey+"MAXCONNECTIONATTEMPTS", strconv.Itoa(maxConnAttempts))
@@ -112,6 +115,7 @@ func TestConfigLoader(t *testing.T) {
 			healthCheckPeriod := 13 * time.Second
 			maxConns := 60
 			minConns := 40
+
 			t.Setenv(envPoolKey+"HEALTHCHECKPERIOD", healthCheckPeriod.String())
 			t.Setenv(envPoolKey+"MAXCONNS", strconv.Itoa(maxConns))
 			t.Setenv(envPoolKey+"MINCONNS", strconv.Itoa(minConns))

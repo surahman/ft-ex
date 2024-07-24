@@ -157,7 +157,9 @@ func TestCommon_HTTPTransactionGeneratePageCursor(t *testing.T) {
 
 	t.Run("successful encryption-decryption", func(t *testing.T) {
 		t.Parallel()
+
 		encrypted, err := HTTPTransactionGeneratePageCursor(testAuth, startStr, endStr, 10)
+
 		require.NoError(t, err, "failed to encrypt cursor.")
 		require.NotEmpty(t, len(encrypted), "empty encrypted cursor returned.")
 
@@ -173,7 +175,9 @@ func TestCommon_HTTPTransactionGeneratePageCursor(t *testing.T) {
 
 	t.Run("missing offset", func(t *testing.T) {
 		t.Parallel()
+
 		input, err := testAuth.EncryptToString([]byte("start,end"))
+
 		require.NoError(t, err, "failed to encrypt missing offset.")
 		_, _, _, _, _, err = HTTPTransactionUnpackPageCursor(testAuth, input)
 		require.Error(t, err, "decrypted invalid page cursor.")
@@ -181,7 +185,9 @@ func TestCommon_HTTPTransactionGeneratePageCursor(t *testing.T) {
 
 	t.Run("invalid offset", func(t *testing.T) {
 		t.Parallel()
+
 		input, err := testAuth.EncryptToString([]byte("start,end,invalid-offset"))
+
 		require.NoError(t, err, "failed to encrypt invalid offset.")
 		_, _, _, _, _, err = HTTPTransactionUnpackPageCursor(testAuth, input)
 		require.Error(t, err, "decrypted invalid page cursor.")
@@ -490,6 +496,7 @@ func TestCommon_HTTPValidateOfferRequest(t *testing.T) {
 
 			for idx, actualCurrency := range parsedCurrencies {
 				var expectedCurrency postgres.Currency
+
 				require.NoError(t, expectedCurrency.Scan(test.currencies[idx]), "failed to parse expected currency.")
 				require.Equal(t, expectedCurrency, actualCurrency, "parse currency mismatched.")
 			}
