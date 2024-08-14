@@ -649,10 +649,10 @@ func TestCrypto_CryptoGetAllJournalTransactionPaginated(t *testing.T) {
 		require.NoError(t, err, "failed to deposit Fiat money for client 2.")
 
 		parameters := getTestCryptoPurchaseParams(clientID1, clientID2)
-		for runs := 0; runs < 4; runs++ {
+		for range 4 {
 			for _, item := range parameters {
 				parameter := item
-				for idx := 0; idx < 3; idx++ {
+				for idx := range 3 {
 					parameter[idx].TransactionID, err = uuid.NewV4()
 					require.NoError(t, err, "failed to generate tx id.")
 

@@ -173,7 +173,7 @@ func TestFiat_FiatTransactionsCurrencyPaginated(t *testing.T) {
 		parameters := getTestFiatJournal(clientID1, clientID2)
 		for _, item := range parameters {
 			parameter := item
-			for idx := 0; idx < 3; idx++ {
+			for range 3 {
 				_, err := connection.Query.fiatExternalTransferJournalEntry(ctx, &parameter)
 				require.NoError(t, err, "error expectation failed.")
 			}
