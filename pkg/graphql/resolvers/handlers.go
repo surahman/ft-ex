@@ -18,7 +18,7 @@ import (
 // QueryHandler is the endpoint through which GraphQL can be accessed.
 func QueryHandler(authHeaderKey string, auth auth.Auth, cache redis.Redis, db postgres.Postgres,
 	quotes quotes.Quotes, logger *logger.Logger) gin.HandlerFunc {
-	gqlHandler := handler.NewDefaultServer(graphql_generated.NewExecutableSchema(
+	gqlHandler := handler.New(graphql_generated.NewExecutableSchema(
 		graphql_generated.Config{
 			Resolvers: &Resolver{
 				authHeaderKey: authHeaderKey,
