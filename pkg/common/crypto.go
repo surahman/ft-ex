@@ -255,6 +255,7 @@ func cryptoBalancePaginatedRequest(auth auth.Auth, tickerStr, limitStr string) (
 		limit = 10
 	}
 
+	//nolint:gosec
 	return ticker, int32(limit), nil
 }
 
